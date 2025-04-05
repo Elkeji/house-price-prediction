@@ -1,10 +1,12 @@
+#Enabling_local_file_loading
 SET GLOBAL local_infile = 1;
 SHOW VARIABLES LIKE 'local_infile';
 SHOW VARIABLES LIKE 'secure_file_priv';
+#Setting up data_base
 CREATE DATABASE IF NOT EXISTS house_prices;
 USE house_prices;
 DROP TABLE IF EXISTS house_data;
-
+#Data_table creation
 CREATE TABLE house_data (
     Id INT,
     MSSubClass INT,
@@ -28,7 +30,7 @@ CREATE TABLE house_data (
 );
 
 DROP TABLE IF EXISTS house_staging;
-
+#house_staging_table
 CREATE TABLE house_staging (
   Id INT,
   MSSubClass VARCHAR(10),
@@ -112,7 +114,7 @@ CREATE TABLE house_staging (
   SaleCondition VARCHAR(20),
   SalePrice VARCHAR(20)
 );
-
+#Loading_Data into_staging_table 
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.01/Uploads/train.csv'
 INTO TABLE house_staging
 FIELDS TERMINATED BY ',' 
@@ -120,8 +122,8 @@ OPTIONALLY ENCLOSED BY '"'
 LINES TERMINATED BY '\r\n'
 IGNORE 1 LINES;
 SELECT * FROM house_staging LIMIT 5;
+Refining Data_table 
 DROP TABLE IF EXISTS house_data;
-
 CREATE TABLE house_data (
     Id INT,
     LotArea INT,
@@ -133,7 +135,6 @@ CREATE TABLE house_data (
     OverallQual INT,
     SalePrice INT
 );
-
 INSERT INTO house_data (Id, LotArea, YearBuilt, Neighborhood, GrLivArea, BedroomAbvGr, FullBath, OverallQual, SalePrice)
 SELECT 
     Id, 
@@ -146,6 +147,7 @@ SELECT
     OverallQual, 
     SalePrice
 FROM house_staging;
+#Data_summary_and_validation 
 SELECT COUNT(*) AS total_rows FROM house_data;
 SELECT * FROM house_data LIMIT 10;
 SELECT 
@@ -168,7 +170,7 @@ SELECT
     AVG(LotArea) AS avg_LotArea,
     STDDEV(LotArea) AS std_dev_LotArea
 FROM house_data;
-
+#Statistical_Summaries
 SELECT 
     Neighborhood, 
     COUNT(*) AS num_houses,
@@ -179,12 +181,12 @@ FROM house_data
 GROUP BY Neighborhood
 ORDER BY avg_sale_price DESC;
 
+#Area_Binning
 SELECT 
     GrLivArea, 
     SalePrice
 FROM house_data
 ORDER BY GrLivArea;
-
 SELECT 
   CASE 
     WHEN GrLivArea < 1000 THEN 'Small'
@@ -196,13 +198,8 @@ SELECT
 FROM house_data
 GROUP BY Area_Bin;
 
-
-SELECT GrLivArea, SalePrice
-FROM house_data
-ORDER BY GrLivArea;
-
-SELECT 
-  Neighborhood, 
+#Neighborhood_based analysis
+SELECT Neighborhood, 
   COUNT(*) AS num_houses,
   AVG(SalePrice) AS avg_sale_price,
   MIN(SalePrice) AS min_sale_price,
@@ -210,7 +207,7 @@ SELECT
 FROM house_data
 GROUP BY Neighborhood
 ORDER BY avg_sale_price DESC;
-
+#Checking for_missing_values
 SELECT
   SUM(CASE WHEN SalePrice IS NULL OR SalePrice = '' THEN 1 ELSE 0 END) AS missing_saleprice,
   SUM(CASE WHEN GrLivArea IS NULL OR GrLivArea = '' THEN 1 ELSE 0 END) AS missing_grlivarea,
