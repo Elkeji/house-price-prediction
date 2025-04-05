@@ -1,4 +1,4 @@
-#Enabling_local_file_loading
+#Enabling_local_file
 SET GLOBAL local_infile = 1;
 SHOW VARIABLES LIKE 'local_infile';
 SHOW VARIABLES LIKE 'secure_file_priv';
