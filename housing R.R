@@ -1,16 +1,16 @@
-#Install and load necessary packages
+#Installing and loading necessary packages
 install.packages("DBI")
 install.packages("RMySQL")  # or install.packages("RMariaDB")
 library(DBI)
 library(RMySQL)
-#Establish a database connection
+#Establishing a database connection
 con <- dbConnect(RMySQL::MySQL(),
                  dbname = "house_prices",
                  host = "127.0.0.1",
                  port = 3306,
                  user = "root",
                  password = "Datanuel@1")
-#Query data from the database
+#Querying data from the database
 house_data <- dbGetQuery(con, "SELECT * FROM house_data")
 #Initial data exploration
 head(house_data)
